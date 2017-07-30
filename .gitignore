@@ -1,3 +1,6 @@
+# Output from the script (frames, videos...)
+/output/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
