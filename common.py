@@ -56,7 +56,7 @@ fonts = {
 
 # Bunch of wrappers to make messages fit on screen
 wrappers = []
-for width in range(25, 14, -1):
+for width in range(25, 10, -1):
     wrappers.append(textwrap.TextWrapper(width = width))
 
 # Space reserved for nick in pixels
