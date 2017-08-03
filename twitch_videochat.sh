@@ -31,6 +31,19 @@ cd "output"
 mkdir -p "$id"
 cd "$id"
 
+echo -e "\n${bold}Downloading chat...${normal}\n"
+
+if ls rechat-${id}.json > /dev/null 2>&1; then
+    echo -e "Chat already downloaded, skipping..."
+else
+    python ../../rechat-dl/rechat-dl.py "$id"
+fi
+
+if ! ls rechat-${id}.json > /dev/null 2>&1; then
+    echo "Chat failed to download."
+    exit
+fi
+
 echo -e "\n${bold}Downloading video...${normal}\n"
 
 quality='best[height<=720][ext=mp4]'
@@ -43,19 +56,6 @@ fi
 
 if ! ls *$id.mp4 > /dev/null 2>&1; then
     echo "Video failed to download."
-    exit
-fi
-
-echo -e "\n${bold}Downloading chat...${normal}\n"
-
-if ls rechat-${id}.json > /dev/null 2>&1; then
-    echo -e "Chat already downloaded, skipping..."
-else
-    python ../../rechat-dl/rechat-dl.py "$id"
-fi
-
-if ! ls rechat-${id}.json > /dev/null 2>&1; then
-    echo "Chat failed to download."
     exit
 fi
 
