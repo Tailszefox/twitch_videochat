@@ -100,11 +100,12 @@ else
     makeFramesOptions="--no-scrolling"
 fi
 
-if ls $concatFilename > /dev/null 2>&1; then
-    echo -e "Concat file and frames already generated, skipping..."
-else
-    mkdir -p $framesDirectory
-    python3 ../../make_frames.py $makeFramesOptions "$id"
+mkdir -p $framesDirectory
+python3 ../../make_frames.py $makeFramesOptions "$id"
+
+if [[ $? -ne 0 ]]; then
+    echo "Python did not exit properly during frame generation."
+    exit
 fi
 
 if ! ls $concatFilename > /dev/null 2>&1; then

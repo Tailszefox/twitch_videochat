@@ -37,7 +37,7 @@ try:
         chat = chat[1:]
 except FileNotFoundError:
     print("Can't find chat file {}".format(filename))
-    sys.exit()
+    sys.exit(1)
 
 messages = []
 lastMessage = None
@@ -69,84 +69,79 @@ messageNo = 0
 messageQueue = []
 frameList = []
 
-try:
-    with open(filenameConcat, mode = "x") as f:
-        # Make first blank image
-        im, draw = common.getNewBaseImage()
-        common.drawBorders(draw)
-        im.save("./{}/0_0.png".format(common.framesDirectory), "PNG")
+with open(filenameConcat, mode = "w") as f:
+    # Make first blank image
+    im, draw = common.getNewBaseImage()
+    common.drawBorders(draw)
+    im.save("./{}/0_0.png".format(common.framesDirectory), "PNG")
 
-        print("ffconcat version 1.0", file = f)
-        print("file ./{}/0_0.png".format(common.framesDirectory), file = f)
-        print("duration {}".format(common.convertMs(messages[0].time)), file = f)
+    print("ffconcat version 1.0", file = f)
+    print("file ./{}/0_0.png".format(common.framesDirectory), file = f)
+    print("duration {}".format(common.convertMs(messages[0].time)), file = f)
 
-        timeForScrolling = 0
+    timeForScrolling = 0
 
-        print("\nCalculating necessary number of frames...")
+    print("\nCalculating necessary number of frames...")
 
-        for m in tqdm(messages, unit = "messages"):
-            messageNo += 1
-            scrollNo = 0
+    for m in tqdm(messages, unit = "messages"):
+        messageNo += 1
+        scrollNo = 0
 
-            messageQueue.append(m)
+        messageQueue.append(m)
 
-            # Scroll until the last message is in frame
-            while m.currentY + m.dimensions["total"]["height"] > 716:
-                frameMessages = []
-                framePositions = []
+        # Scroll until the last message is in frame
+        while m.currentY + m.dimensions["total"]["height"] > 716:
+            frameMessages = []
+            framePositions = []
 
-                for mq in messageQueue:
-                    mq.currentY -= common.scrollSpeed
+            for mq in messageQueue:
+                mq.currentY -= common.scrollSpeed
 
-                    frameMessages.append(mq)
-                    framePositions.append(mq.currentY)
+                frameMessages.append(mq)
+                framePositions.append(mq.currentY)
 
-                # Add the frame to be rendered if we want scrolling
-                if common.scrolling:
-                    newFrame = ChatFrame(messageNo, scrollNo, frameMessages, framePositions)
-                    frameList.append(newFrame)
+            # Add the frame to be rendered if we want scrolling
+            if common.scrolling:
+                newFrame = ChatFrame(messageNo, scrollNo, frameMessages, framePositions)
+                frameList.append(newFrame)
 
-                scrollNo += 1
+            scrollNo += 1
 
-            # If we don't want scrolling, we only need to render the final frame for the message
-            if not common.scrolling:
-                lastFrame = ChatFrame(messageNo, 0, frameMessages, framePositions)
-                frameList.append(lastFrame)
+        # If we don't want scrolling, we only need to render the final frame for the message
+        if not common.scrolling:
+            lastFrame = ChatFrame(messageNo, 0, frameMessages, framePositions)
+            frameList.append(lastFrame)
 
-                print("file ./{}/{}_0.png".format(common.framesDirectory, messageNo), file = f)
-                print("duration {}".format(common.convertMs(m.timeToNext)), file = f)
-            else:
-                for frame in range(0, scrollNo):
-                    print("file ./{}/{}_{}.png".format(common.framesDirectory, messageNo, frame), file = f)
+            print("file ./{}/{}_0.png".format(common.framesDirectory, messageNo), file = f)
+            print("duration {}".format(common.convertMs(m.timeToNext)), file = f)
+        else:
+            for frame in range(0, scrollNo):
+                print("file ./{}/{}_{}.png".format(common.framesDirectory, messageNo, frame), file = f)
 
-                    if frame <= 1:
-                        scrollDisplayTime = common.normalScrollDisplayTime * 2
-                    elif frame >= (scrollNo - 2):
-                        scrollDisplayTime = common.normalScrollDisplayTime * 2
-                    else:
-                        scrollDisplayTime = common.normalScrollDisplayTime
-
-                    print("duration {}".format(common.convertMs(scrollDisplayTime)), file = f)
-
-                    timeForScrolling += scrollDisplayTime
-
-                timeToNextWithScrolling = m.timeToNext - timeForScrolling
-
-                # If we have to wait until the next message, display the last image until it's time for the next one
-                if timeToNextWithScrolling > 0:
-                    print("file ./{}/{}_{}.png".format(common.framesDirectory, messageNo, scrollNo - 1), file = f)
-                    print("duration {}".format(common.convertMs(timeToNextWithScrolling)), file = f)
-                    timeForScrolling = 0
-                # We took too much time to scroll, so we'll need to display the next message for less time
+                if frame <= 1:
+                    scrollDisplayTime = common.normalScrollDisplayTime * 2
+                elif frame >= (scrollNo - 2):
+                    scrollDisplayTime = common.normalScrollDisplayTime * 2
                 else:
-                    timeForScrolling = -timeToNextWithScrolling
+                    scrollDisplayTime = common.normalScrollDisplayTime
 
-            # Remove messages from the queue if they scrolled offscreen
-            messageQueue = [mq for mq in messageQueue if mq.currentY + mq.dimensions["total"]["height"] > 0]
+                print("duration {}".format(common.convertMs(scrollDisplayTime)), file = f)
 
-except FileExistsError:
-    print("Concat file already exists.")
-    sys.exit()
+                timeForScrolling += scrollDisplayTime
+
+            timeToNextWithScrolling = m.timeToNext - timeForScrolling
+
+            # If we have to wait until the next message, display the last image until it's time for the next one
+            if timeToNextWithScrolling > 0:
+                print("file ./{}/{}_{}.png".format(common.framesDirectory, messageNo, scrollNo - 1), file = f)
+                print("duration {}".format(common.convertMs(timeToNextWithScrolling)), file = f)
+                timeForScrolling = 0
+            # We took too much time to scroll, so we'll need to display the next message for less time
+            else:
+                timeForScrolling = -timeToNextWithScrolling
+
+        # Remove messages from the queue if they scrolled offscreen
+        messageQueue = [mq for mq in messageQueue if mq.currentY + mq.dimensions["total"]["height"] > 0]
 
 print("\nGenerating {} frames for {} messages{}...".format(len(frameList), len(messages), "" if common.scrolling else " with no scrolling"))
 

@@ -21,6 +21,10 @@ def drawBorders(draw):
 
 # Write frame to disk
 def writeFrame(frame):
+    # Skip the frame if it's already been rendered
+    if frame.rendered:
+        return
+
     # Get new image
     im, draw = getNewBaseImage()
 

@@ -1,9 +1,18 @@
+import os
+import common
+
 # Animation frame for chat overlay
 class ChatFrame():
     def __init__(self, messageNo, scrollNo, messages, positions):
         self.messageNo = messageNo
         self.scrollNo = scrollNo
         self.name = "{}_{}".format(messageNo, scrollNo)
+
+        self.rendered = False
+
+        # Was the frame already rendered during a previous run?
+        if os.path.exists("./{}/{}.png".format(common.framesDirectory, self.name)):
+            self.rendered = True
 
         self.messages = []
 
