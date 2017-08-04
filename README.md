@@ -16,6 +16,7 @@ This can be useful if you want to watch a stream replay with chat on a device th
 
 Usage:
 - `./twitch_videochat.sh [URL to Twitch VOD]`. Example: `./twitch_videochat.sh https://www.twitch.tv/videos/123456789`
+- You can speed up the frame generation phase with `--no-scrolling` (or just `-n`), as in `./twitch_videochat.sh --no-scrolling https://www.twitch.tv/videos/123456789`. This may make the chat less smooth and harder to follow, since new messages will suddenly appear at the bottom, but will greatly reduce the time needed to render all the necessary frames.
 - The resulting video will be available in the `output` directory, inside a subdirectory named after the video ID.
 
 What you need:
@@ -36,10 +37,10 @@ Some caveats (actually a lot of them):
 - I only tested this on my machine running Debian. It may or may not work depending on your environment.
 - I only tested this with a handful of videos. It may or may not work with the video you want to use.
 - It only works with videos from the "Video" tab on a Twitch channel.
-- The process can take a while, depending on the amount of messages to process and the length of the video.
+- The process can take a while, depending on the amount of messages to process and the length of the video. As stated above, you can make the frame generation phase faster by using `--no-scrolling`, though this won't have an impact on the time necessary to render the final video.
 - The final video is rendered in 720p because I was lazy and hardcoded all the dimensions. Everything bigger/smaller is scaled down/up.
 - It only renders text. No emotes and no icons.
-- I wouldn't try it with a video where the chat is hyperactive. The script won't have time to catch up and it will create a enormous amount of frames.
+- I wouldn't try it with a video where the chat is hyperactive. The script won't have time to catch up and it will create an enormous amount of frames. If you still want to try, I strongly suggest using the `--no-scrolling` option.
 - The script doesn't clean up after itself (so you can retry if there's an error). You'll have to delete the original video, chat and frames yourself once you're done.
 - There may be something that I forgot that will cause your computer to explode or melt. You have been warned.
 

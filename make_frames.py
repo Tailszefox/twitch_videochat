@@ -2,6 +2,7 @@
 
 import sys
 import json
+import argparse
 from tqdm import tqdm
 from multiprocessing import Pool
 
@@ -9,13 +10,22 @@ import common
 from ChatMessage import ChatMessage
 from ChatFrame import ChatFrame
 
-try:
-    clipId = sys.argv[1]
-    filename = "rechat-{}.json".format(clipId)
+parser = argparse.ArgumentParser()
+parser.add_argument("--no-scrolling", action = "store_true", help = "Disable scrolling")
+parser.add_argument("videoId", help = "Twitch video ID")
+arguments = parser.parse_args()
+
+clipId = arguments.videoId
+common.scrolling = not arguments.no_scrolling
+
+filename = "rechat-{}.json".format(clipId)
+
+if common.scrolling:
     filenameConcat = "rechat-{}.concat".format(clipId)
-except IndexError:
-    print("Usage: {} [clip ID]".format(sys.argv[0]))
-    sys.exit()
+    common.framesDirectory = "frames"
+else:
+    filenameConcat = "rechat-noscroll-{}.concat".format(clipId)
+    common.framesDirectory = "frames_noscroll"
 
 try:
     print("Reading chat log from {}...".format(filename))
@@ -64,10 +74,10 @@ try:
         # Make first blank image
         im, draw = common.getNewBaseImage()
         common.drawBorders(draw)
-        im.save("./frames/0_0.png", "PNG")
+        im.save("./{}/0_0.png".format(common.framesDirectory), "PNG")
 
         print("ffconcat version 1.0", file = f)
-        print("file ./frames/0_0.png", file = f)
+        print("file ./{}/0_0.png".format(common.framesDirectory), file = f)
         print("duration {}".format(common.convertMs(messages[0].time)), file = f)
 
         timeForScrolling = 0
@@ -91,35 +101,45 @@ try:
                     frameMessages.append(mq)
                     framePositions.append(mq.currentY)
 
-                newFrame = ChatFrame(messageNo, scrollNo, frameMessages, framePositions)
-                frameList.append(newFrame)
+                # Add the frame to be rendered if we want scrolling
+                if common.scrolling:
+                    newFrame = ChatFrame(messageNo, scrollNo, frameMessages, framePositions)
+                    frameList.append(newFrame)
 
                 scrollNo += 1
 
-            for frame in range(0, scrollNo):
-                print("file ./frames/{}_{}.png".format(messageNo, frame), file = f)
+            # If we don't want scrolling, we only need to render the final frame for the message
+            if not common.scrolling:
+                lastFrame = ChatFrame(messageNo, 0, frameMessages, framePositions)
+                frameList.append(lastFrame)
 
-                if frame <= 1:
-                    scrollDisplayTime = common.normalScrollDisplayTime * 2
-                elif frame >= (scrollNo - 2):
-                    scrollDisplayTime = common.normalScrollDisplayTime * 2
-                else:
-                    scrollDisplayTime = common.normalScrollDisplayTime
-
-                print("duration {}".format(common.convertMs(scrollDisplayTime)), file = f)
-
-                timeForScrolling += scrollDisplayTime
-
-            timeToNextWithScrolling = m.timeToNext - timeForScrolling
-
-            # If we have to wait until the next message, display the last image until it's time for the next one
-            if timeToNextWithScrolling > 0:
-                print("file ./frames/{}_{}.png".format(messageNo, scrollNo - 1), file = f)
-                print("duration {}".format(common.convertMs(timeToNextWithScrolling)), file = f)
-                timeForScrolling = 0
-            # We took too much time to scroll, so we'll need to display the next message for less time
+                print("file ./{}/{}_0.png".format(common.framesDirectory, messageNo), file = f)
+                print("duration {}".format(common.convertMs(m.timeToNext)), file = f)
             else:
-                timeForScrolling = -timeToNextWithScrolling
+                for frame in range(0, scrollNo):
+                    print("file ./{}/{}_{}.png".format(common.framesDirectory, messageNo, frame), file = f)
+
+                    if frame <= 1:
+                        scrollDisplayTime = common.normalScrollDisplayTime * 2
+                    elif frame >= (scrollNo - 2):
+                        scrollDisplayTime = common.normalScrollDisplayTime * 2
+                    else:
+                        scrollDisplayTime = common.normalScrollDisplayTime
+
+                    print("duration {}".format(common.convertMs(scrollDisplayTime)), file = f)
+
+                    timeForScrolling += scrollDisplayTime
+
+                timeToNextWithScrolling = m.timeToNext - timeForScrolling
+
+                # If we have to wait until the next message, display the last image until it's time for the next one
+                if timeToNextWithScrolling > 0:
+                    print("file ./{}/{}_{}.png".format(common.framesDirectory, messageNo, scrollNo - 1), file = f)
+                    print("duration {}".format(common.convertMs(timeToNextWithScrolling)), file = f)
+                    timeForScrolling = 0
+                # We took too much time to scroll, so we'll need to display the next message for less time
+                else:
+                    timeForScrolling = -timeToNextWithScrolling
 
             # Remove messages from the queue if they scrolled offscreen
             messageQueue = [mq for mq in messageQueue if mq.currentY + mq.dimensions["total"]["height"] > 0]
@@ -128,7 +148,7 @@ except FileExistsError:
     print("Concat file already exists.")
     sys.exit()
 
-print("\nGenerating {} frames for {} messages...".format(len(frameList), len(messages)))
+print("\nGenerating {} frames for {} messages{}...".format(len(frameList), len(messages), "" if common.scrolling else " with no scrolling"))
 
 pool = Pool()
 list(tqdm(pool.imap(common.writeFrame, frameList), total = len(frameList), unit = "frames"))

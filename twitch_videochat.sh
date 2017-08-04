@@ -1,8 +1,35 @@
 #!/bin/bash
 
-if [[ $# -eq 0 ]]; then
-    echo "Usage: $0 https://www.twitch.tv/videos/123456789"
+function usage()
+{
+    echo "Usage: $0 [--no-scrolling] https://www.twitch.tv/videos/123456789"
     exit
+}
+
+# Make option --no-scrolling available
+options=$(getopt -o n --long no-scrolling -- "$@")
+
+# Failed to parse options
+if [[ $? -ne 0 ]]; then
+    usage
+fi
+
+eval set -- "$options"
+
+# Scrolling is enabled by default
+scrolling=true
+
+while true; do
+    case "$1" in
+        -n | --no-scrolling) scrolling=false; shift ;;
+        --) shift ; break ;;
+        *) break;;
+    esac
+done
+
+# No URL provided
+if [[ $# -eq 0 ]]; then
+    usage
 fi
 
 bold=$(tput bold)
@@ -61,23 +88,35 @@ fi
 
 echo -e "\n${bold}Generating frames...${normal}\n"
 
-if ls rechat-${id}.concat > /dev/null 2>&1; then
-    echo -e "Concat file and frames already generated, skipping..."
+if $scrolling; then
+    concatFilename="rechat-${id}.concat"
+    framesDirectory="frames"
+    outputFilename="${id}_chat.mp4"
+    makeFramesOptions=""
 else
-    mkdir -p "frames"
-    python3 ../../make_frames.py "$id"
+    concatFilename="rechat-noscroll-${id}.concat"
+    framesDirectory="frames_noscroll"
+    outputFilename="${id}_chat_noscroll.mp4"
+    makeFramesOptions="--no-scrolling"
 fi
 
-if ! ls rechat-${id}.concat > /dev/null 2>&1; then
+if ls $concatFilename > /dev/null 2>&1; then
+    echo -e "Concat file and frames already generated, skipping..."
+else
+    mkdir -p $framesDirectory
+    python3 ../../make_frames.py $makeFramesOptions "$id"
+fi
+
+if ! ls $concatFilename > /dev/null 2>&1; then
     echo "Frame generation failed."
     exit
 fi
 
 echo -e "\n${bold}Rendering video...${normal}\n"
 
-ffmpeg -threads 4 -i ./*${id}.mp4 -safe 0 -i ./rechat-${id}.concat -filter_complex "[0:v]scale=width=1030:height=580[scaled];[scaled]pad=w=1280:height=720:y=70[padded];[padded][1:v]overlay=x=1030:y=0[video]" -map "[video]" -map 0:1 -acodec copy -preset ultrafast ${id}_chat.mp4
+ffmpeg -threads 4 -i ./*${id}.mp4 -safe 0 -i $concatFilename -filter_complex "[0:v]scale=width=1030:height=580[scaled];[scaled]pad=w=1280:height=720:y=70[padded];[padded][1:v]overlay=x=1030:y=0[video]" -map "[video]" -map 0:1 -acodec copy -preset ultrafast $outputFilename
 
-if ! ls ${id}_chat.mp4 > /dev/null 2>&1; then
+if ! ls $outputFilename > /dev/null 2>&1; then
     echo -e "\nVideo rendering failed.\n"
     exit
 fi

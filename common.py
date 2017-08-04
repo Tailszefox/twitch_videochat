@@ -32,7 +32,7 @@ def writeFrame(frame):
         draw.text((8, position + spaceForNick), message.message, "white", fonts["verdana"])
 
     drawBorders(draw)
-    im.save("./frames/{}.png".format(frame.name), "PNG")
+    im.save("./{}/{}.png".format(framesDirectory, frame.name), "PNG")
 
 # Convert miliseconds to HH:MM:SS:QQQ
 def convertMs(ms):
@@ -47,6 +47,12 @@ def convertMs(ms):
     hours = t % 24
 
     return "{:0>2}:{:0>2}:{:0>2}.{:0>3}".format(hours, minutes, seconds, remainingMs)
+
+# Scrolling can be enabled/disabled
+scrolling = None
+
+# Directory where frames are stored
+framesDirectory = None
 
 # Fonts used
 fonts = {
