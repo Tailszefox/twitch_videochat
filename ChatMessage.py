@@ -3,14 +3,16 @@ import common
 # Message sent by viewer
 class ChatMessage():
 
-    def __init__(self, fullObject):
-        att = fullObject["attributes"]
+    def __init__(self, obj):
+        self.time = int(obj["content_offset_seconds"] * 1000)
+        self.nick = obj["commenter"]["display_name"] if obj["commenter"]["display_name"] is not None else obj["commenter"]["name"]
 
-        self.time = att["video-offset"]
-        self.nick = att["tags"]["display-name"] if att["tags"]["display-name"] is not None else att["from"]
-        self.color = self.adjustColor(att["tags"]["color"]) if att["tags"]["color"] is not None else self.generateColor()
+        try:
+            self.color = self.adjustColor(obj["message"]["user_color"])
+        except KeyError:
+            self.color = self.generateColor()
 
-        self.rawMessage = att["message"]
+        self.rawMessage = obj["message"]["body"]
         self.message = self.wrapMessage()
 
         self.dimensions = self.getDimensions()

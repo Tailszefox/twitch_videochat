@@ -47,10 +47,6 @@ messageNo = 0
 for m in tqdm(chat, unit = "messages"):
     messageNo += 1
 
-    # Ignore room commands
-    if m["attributes"]["command"] == "ROOMSTATE":
-        continue
-
     newMessage = ChatMessage(m)
     messages.append(newMessage)
 
