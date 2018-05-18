@@ -82,8 +82,20 @@ else
 fi
 
 if ! ls *$id.mp4 > /dev/null 2>&1; then
-    echo "Video failed to download."
-    exit
+    echo "Video failed to download in 720p, trying default format..."
+
+    quality='best[ext=mp4]'
+
+    if [[ -f ../../youtube-convert ]]; then
+        ../../youtube-convert -i -f "$quality" "$url"
+    else
+        youtube-convert -i -f "$quality" "$url"
+    fi
+
+    if ! ls *$id.mp4 > /dev/null 2>&1; then
+        echo "Video failed to download."
+        exit
+    fi
 fi
 
 echo -e "\n${bold}Generating frames...${normal}\n"
