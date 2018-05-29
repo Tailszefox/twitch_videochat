@@ -21,8 +21,7 @@ Usage:
 
 What you need:
 - This is a Bash script so you obviously need Bash or an equivalent.
-- [youtube-dl](https://github.com/rg3/youtube-dl/) + my wrapper [youtube-convert](https://github.com/Tailszefox/bin/blob/master/youtube-convert). youtube-dl has to be in your PATH. youtube-convert can either be in your PATH or put alongside the other files from this repository.
-- [rechat-dl](https://github.com/KunaiFire/rechat-dl) which is provided as a submodule.
+- [youtube-dl](https://github.com/rg3/youtube-dl/) + [rechat-dl](https://github.com/KunaiFire/rechat-dl) which are provided as submodules.
 - Python 3 + a few modules, notably PIL and tqdm.
 - ffmpeg.
 - (There may be some other requirements I forgot about, but you should be able to figure out what you're missing if you get an error.)
