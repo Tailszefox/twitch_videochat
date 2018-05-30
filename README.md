@@ -10,7 +10,7 @@ While there are tools to download a Twitch video, and tools to download the chat
 
 Give it a Twitch VOD URL, and it will create a new video with the stream on the left and the chat on the right. Here's what it looks like (with some stuff blurred for anonymity):
 
-![Example](https://i.imgur.com/CUK55HO.png)
+![Example](https://i.imgur.com/5jIdRao.png)
 
 This can be useful if you want to watch a stream replay with chat on a device that doesn't support Twitch, or if you want to watch it offline. Or maybe you'd like to upload your replay on YouTube and want to allow YouTube viewers to see the chat without having to watch it on Twitch.
 
