@@ -74,13 +74,13 @@ fi
 echo -e "\n${bold}Downloading video...${normal}\n"
 
 quality='best[height<=720][ext=mp4]'
-../../youtube-dl/youtube_dl/__main__.py -f "$quality" --restrict-filenames -o "%(upload_date)s - %(title)s - %(uploader)s - %(id)s.%(ext)s" "$url"
+../../youtube_dl/youtube_dl/__main__.py -f "$quality" --restrict-filenames -o "%(upload_date)s - %(title)s - %(uploader)s - %(id)s.%(ext)s" "$url"
 
 if ! ls *$id.mp4 > /dev/null 2>&1; then
     echo "Video failed to download in 720p, trying default format..."
 
     quality='best[ext=mp4]'
-    ../../youtube-dl/youtube_dl/__main__.py -f "$quality" --restrict-filenames -o "%(upload_date)s - %(title)s - %(uploader)s - %(id)s.%(ext)s" "$url"
+    ../../youtube_dl/youtube_dl/__main__.py -f "$quality" --restrict-filenames -o "%(upload_date)s - %(title)s - %(uploader)s - %(id)s.%(ext)s" "$url"
 
     if ! ls *$id.mp4 > /dev/null 2>&1; then
         echo "Video failed to download."

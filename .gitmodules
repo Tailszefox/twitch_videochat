@@ -2,5 +2,5 @@
 	path = rechat-dl
 	url = https://github.com/KunaiFire/rechat-dl
 [submodule "youtube-dl"]
-	path = youtube-dl
+	path = youtube_dl
 	url = https://github.com/rg3/youtube-dl/
