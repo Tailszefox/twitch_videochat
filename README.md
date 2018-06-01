@@ -15,14 +15,13 @@ Give it a Twitch VOD URL, and it will create a new video with the stream on the 
 This can be useful if you want to watch a stream replay with chat on a device that doesn't support Twitch, or if you want to watch it offline. Or maybe you'd like to upload your replay on YouTube and want to allow YouTube viewers to see the chat without having to watch it on Twitch.
 
 Usage:
-- `./twitch_videochat.sh [URL to Twitch VOD]`. Example: `./twitch_videochat.sh https://www.twitch.tv/videos/123456789`
-- You can speed up the frame generation phase with `--no-scrolling` (or just `-n`), as in `./twitch_videochat.sh --no-scrolling https://www.twitch.tv/videos/123456789`. This may make the chat less smooth and harder to follow, since new messages will suddenly appear at the bottom, but will greatly reduce the time needed to render all the necessary frames.
+- `./twitch_videochat.py [URL to Twitch VOD]`. Example: `./twitch_videochat.py https://www.twitch.tv/videos/123456789`
+- You can speed up the frame generation phase with `--no-scrolling`, as in `./twitch_videochat.py --no-scrolling https://www.twitch.tv/videos/123456789`. This may make the chat less smooth and harder to follow, since new messages will suddenly appear at the bottom, but will greatly reduce the time needed to render all the necessary frames.
 - The resulting video will be available in the `output` directory, inside a subdirectory named after the video ID.
 
 What you need:
-- This is a Bash script so you obviously need Bash or an equivalent.
-- [youtube-dl](https://github.com/rg3/youtube-dl/) + [rechat-dl](https://github.com/KunaiFire/rechat-dl) which are provided as submodules.
 - Python 3 + a few modules, notably PIL and tqdm.
+- [youtube-dl](https://github.com/rg3/youtube-dl/) + [rechat-dl](https://github.com/KunaiFire/rechat-dl) which are provided as submodules.
 - ffmpeg.
 - (There may be some other requirements I forgot about, but you should be able to figure out what you're missing if you get an error.)
 
