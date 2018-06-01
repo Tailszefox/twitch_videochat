@@ -26,7 +26,7 @@ What you need:
 - (There may be some other requirements I forgot about, but you should be able to figure out what you're missing if you get an error.)
 
 How it works:
-- [youtube-dl](https://github.com/rg3/youtube-dl/) is used to download the Twitch video (actually it uses my wrapper [youtube-convert](https://github.com/Tailszefox/bin/blob/master/youtube-convert) which calls youtube-dl).
+- [youtube-dl](https://github.com/rg3/youtube-dl/) is used to download the Twitch video.
 - [rechat-dl](https://github.com/KunaiFire/rechat-dl) is used to download the chat data in JSON.
 - make_frames.py creates the frames that will be used to render the chat in video form.
 - ffmpeg is used to create the final video. It resizes the original video, adds some space on the right for the chat, overlays it, and renders the final product.
