@@ -3,7 +3,7 @@ from PIL import Image, ImageDraw, ImageFont
 
 # Create a new image
 def getNewBaseImage():
-    im = Image.new("RGBA", (250, 720), "black")
+    im = Image.new("RGBA", (chatWidth, videoHeight), "black")
     draw = ImageDraw.Draw(im)
 
     return (im, draw)
@@ -11,13 +11,13 @@ def getNewBaseImage():
 # Draw borders around image
 def drawBorders(draw):
     ## Up
-    draw.rectangle([0, 0, 250, 4], "gray", "gray")
+    draw.rectangle([0, 0, chatWidth, 5], "gray", "gray")
     ## Down
-    draw.rectangle([0, 720, 250, 716], "gray", "gray")
+    draw.rectangle([0, videoHeight, chatWidth, videoHeight - 5], "gray", "gray")
     ## Left
-    draw.rectangle([0, 0, 4, 720], "gray", "gray")
+    draw.rectangle([0, 0, 5, videoHeight], "gray", "gray")
     ## Right
-    draw.rectangle([250, 0, 246, 720], "gray", "gray")
+    draw.rectangle([chatWidth, 0, chatWidth - 5, videoHeight], "gray", "gray")
 
 # Write frame to disk
 def writeFrame(frame):
@@ -32,8 +32,8 @@ def writeFrame(frame):
         message = m["message"]
         position = m["position"]
 
-        draw.text((8, position), "{}:".format(message.nick), message.color, fonts["verdanaBold"])
-        draw.text((8, position + spaceForNick), message.message, "white", fonts["verdana"])
+        draw.text((10, position), "{}:".format(message.nick), message.color, fonts["verdanaBold"])
+        draw.text((10, position + message.dimensions["nick"]["height"]), message.message, "white", fonts["verdana"])
 
     drawBorders(draw)
     im.save("./{}/{}.png".format(framesDirectory, frame.name), "PNG")
@@ -52,6 +52,12 @@ def convertMs(ms):
 
     return "{:0>2}:{:0>2}:{:0>2}.{:0>3}".format(hours, minutes, seconds, remainingMs)
 
+# Video and chat size
+videoWidth = 0
+videoHeight = 0
+paddedWidth = 0
+chatWidth = 0
+
 # Scrolling can be enabled/disabled
 scrolling = None
 
@@ -59,18 +65,7 @@ scrolling = None
 framesDirectory = None
 
 # Fonts used
-fonts = {
-    "verdana": ImageFont.truetype("/usr/share/fonts/truetype/msttcorefonts/verdana.ttf", 17),
-    "verdanaBold": ImageFont.truetype("/usr/share/fonts/truetype/msttcorefonts/verdanab.ttf", 17)
-    }
-
-# Bunch of wrappers to make messages fit on screen
-wrappers = []
-for width in range(25, 10, -1):
-    wrappers.append(textwrap.TextWrapper(width = width))
-
-# Space reserved for nick in pixels
-spaceForNick = 20
+fonts = None
 
 # Scroll speed in pixels (how much to scroll up)
 scrollSpeed = 5
@@ -79,4 +74,5 @@ scrollSpeed = 5
 normalScrollDisplayTime = 32
 
 # Base image used for size calculations
-baseImage, baseDraw = getNewBaseImage()
+baseImage = None
+baseDraw = None

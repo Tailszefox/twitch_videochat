@@ -5,7 +5,9 @@ import sys
 import re
 import os
 import subprocess
+from PIL import Image, ImageDraw, ImageFont
 
+import common
 import make_frames
 from youtube_dl import youtube_dl
 
@@ -52,7 +54,7 @@ print("\n\033[1mDownloading video...\033[0m")
 if os.path.exists("./v{}.mp4".format(videoId)):
     print("Video already downloaded, skipping...")
 else:
-    ydlOptions = {'format': 'best[height<=720][ext=mp4]',
+    ydlOptions = {'format': 'best[ext=mp4]',
                   'outtmpl': "%(id)s.%(ext)s",
                   'restrictfilenames': True
                  }
@@ -61,17 +63,38 @@ else:
         with youtube_dl.YoutubeDL(ydlOptions) as ydl:
             ydl.download([videoUrl])
     except:
-        print("Video failed to download in 720p, trying default format...")
-        ydlOptions["format"] = "best[ext=mp4]"
+        print("Video failed to download. Please check youtube-dl output.")
+        sys.exit(1)
 
-        try:
-            with youtube_dl.YoutubeDL(ydlOptions) as ydl:
-                ydl.download([videoUrl])
-        except:
-            print("Video failed to download. Please check youtube-dl output.")
-            sys.exit(1)
+try:
+    videoSize = subprocess.check_output(["ffprobe", "-v", "error", "-select_streams", "v:0", "-show_entries", "stream=height,width", "-of", "csv=s=x:p=0", "./v{}.mp4".format(videoId)]).decode("utf-8")
+
+    common.videoWidth = int(videoSize.split('x')[0])
+    common.videoHeight = int(videoSize.split('x')[1])
+
+    # The chat takes 20% of the video's original width
+    common.paddedWidth = int((80 * common.videoWidth) / 100)
+    common.chatWidth = common.videoWidth - common.paddedWidth
+
+    # Pick font size according to resolution
+    fontSize = int(common.videoHeight * 0.024)
+    if fontSize < 8:
+        fontSize = 8
+
+    common.fonts = {
+        "verdana": ImageFont.truetype("/usr/share/fonts/truetype/msttcorefonts/verdana.ttf", fontSize),
+        "verdanaBold": ImageFont.truetype("/usr/share/fonts/truetype/msttcorefonts/verdanab.ttf", fontSize)
+    }
+except:
+    print("Could not extract video dimensions. Please check ffprobe output.")
+    sys.exit(1)
+
+print("Video size: {videoWidth}x{videoHeight}\nChat size: {chatWidth}x{videoHeight}\nFont size: {fontSize}".format(videoWidth = common.videoWidth, videoHeight = common.videoHeight, chatWidth = common.chatWidth, fontSize = fontSize))
 
 print("\n\033[1mGenerating frames...\033[0m")
+
+# Create base image for size calculations
+common.baseImage, common.baseDraw = common.getNewBaseImage()
 
 if scrolling:
     concatFilename = "rechat-{}.concat".format(videoId)
@@ -93,7 +116,10 @@ if not os.path.exists("./{}".format(concatFilename)):
 print("\n\033[1mRendering video...\033[0m")
 
 try:
-    ffmpegCall = ["ffmpeg", "-threads", "4", "-i", "./v{}.mp4".format(videoId), "-safe", "0", "-i", "{}".format(concatFilename), "-filter_complex", "[0:v]scale=width=1030:height=580[scaled];[scaled]pad=w=1280:height=720:y=70[padded];[padded][1:v]overlay=x=1030:y=0[video]", "-map", "[video]", "-map", "0:1", "-acodec", "copy", "-preset", "ultrafast", "{}".format(outputFilename)]
+    ffmpegCall = ["ffmpeg", "-threads", "4", "-i", "./v{}.mp4".format(videoId), "-safe", "0", "-i", "{}".format(concatFilename), "-filter_complex",
+    "[0:v]scale=width={paddedWidth}:height=-1[scaled];[scaled]pad=w={videoWidth}:height={videoHeight}:y=(oh-ih)/2[padded];[padded][1:v]overlay=x={paddedWidth}:y=0[video]".format(paddedWidth = common.paddedWidth, videoWidth = common.videoWidth, videoHeight = common.videoHeight),
+    "-map", "[video]", "-map", "0:1", "-acodec", "copy", "-preset", "ultrafast", "{}".format(outputFilename)]
+
     subprocess.call(ffmpegCall)
 except:
     print("Video generation failed. Please check ffmpeg output.")

@@ -3,6 +3,7 @@
 import sys
 import json
 import argparse
+import textwrap
 from tqdm import tqdm
 from multiprocessing import Pool
 
@@ -24,7 +25,7 @@ def main(videoId, scrolling):
         common.framesDirectory = "frames_noscroll"
 
     try:
-        print("Reading chat log from {}...".format(filename))
+        print("Parsing chat log from {}...".format(filename))
         with open(filename) as j:
             chat = json.load(j)
 
@@ -82,7 +83,7 @@ def main(videoId, scrolling):
             messageQueue.append(m)
 
             # Scroll until the last message is in frame
-            while m.currentY + m.dimensions["total"]["height"] > 716:
+            while m.currentY + m.dimensions["total"]["height"] > (common.videoHeight - 10):
                 frameMessages = []
                 framePositions = []
 

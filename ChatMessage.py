@@ -1,4 +1,5 @@
 import common
+import textwrap
 
 # Message sent by viewer
 class ChatMessage():
@@ -18,7 +19,9 @@ class ChatMessage():
         self.dimensions = self.getDimensions()
 
         self.timeToNext = 0
-        self.currentY = 720
+
+        # All messages start below the bottom of the video
+        self.currentY = common.videoHeight
 
     # Adjust nick color so it's not too dark
     def adjustColor(self, color):
@@ -47,15 +50,25 @@ class ChatMessage():
 
     # Wrap message so it fits on screen
     def wrapMessage(self):
-        # Try each wrapper until it fits
-        for wrapper in common.wrappers:
-            wrappedMessage = wrapper.fill(self.rawMessage)
+        maximumTextLength = 0
+        wrappedMessage = None
+        previousWrappedMessage = None
+
+        # Try to have as many characters as possible on a line until it exceeds the chat's length
+        while True:
+            maximumTextLength += 5
+
+            previousWrappedMessage = wrappedMessage
+            wrappedMessage = textwrap.fill(self.rawMessage, width = maximumTextLength)
             widthMessage, heightMessage = common.baseDraw.textsize(wrappedMessage, common.fonts["verdana"])
 
-            if widthMessage <= 240:
-                return wrappedMessage
+            # We exceeded the allowed length
+            if widthMessage >= (common.chatWidth - 20):
+                return previousWrappedMessage
 
-        raise Exception("Could not wrap message...")
+            # We already have everythign on a single line
+            if "\n" not in wrappedMessage:
+                return wrappedMessage
 
     # Get nick and message heights and widths
     def getDimensions(self):
@@ -65,7 +78,7 @@ class ChatMessage():
         dimensions = {"nick": {}, "message": {}}
         dimensions["nick"] = {"width": widthNick, "height": heightNick}
         dimensions["message"] = {"width": widthMessage, "height": heightMessage}
-        dimensions["total"] = {"height": common.spaceForNick + heightMessage}
+        dimensions["total"] = {"height": heightNick + heightMessage}
 
         return dimensions
 
