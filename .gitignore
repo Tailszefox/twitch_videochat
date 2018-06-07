@@ -1,6 +1,9 @@
 # Output from the script (frames, videos...)
 /output/
 
+# Exe files from ffmpeg
+*.exe
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
