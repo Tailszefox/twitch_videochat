@@ -144,9 +144,4 @@ def main(videoId, scrolling):
     pool.join()
 
 if __name__=='__main__':
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--no-scrolling", action = "store_true", help = "Disable scrolling")
-    parser.add_argument("videoId", help = "Twitch video ID")
-    arguments = parser.parse_args()
-
-    main(arguments.videoId, not arguments.no_scrolling)
+    print("This script should not be called on its own. Call twitch_videochat.py instead.")
