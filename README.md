@@ -36,7 +36,6 @@ Some caveats (actually a lot of them):
 - I only tested this with a handful of videos. It may or may not work with the video you want to use.
 - It only works with videos from the "Video" tab on a Twitch channel.
 - The process can take a while, depending on the amount of messages to process and the length of the video. As stated above, you can make the frame generation phase faster by using `--no-scrolling`, though this won't have an impact on the time necessary to render the final video.
-- The final video is rendered in 720p because I was lazy and hardcoded all the dimensions. Everything bigger/smaller is scaled down/up.
 - It only renders text. No emotes and no icons.
 - I wouldn't try it with a video where the chat is hyperactive. The script won't have time to catch up and it will create an enormous amount of frames. If you still want to try, I strongly suggest using the `--no-scrolling` option.
 - The script doesn't clean up after itself (so you can retry if there's an error). You'll have to delete the original video, chat and frames yourself once you're done.
