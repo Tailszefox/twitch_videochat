@@ -66,7 +66,7 @@ class ChatMessage():
             if widthMessage >= (common.chatWidth - 20):
                 return previousWrappedMessage
 
-            # We already have everythign on a single line
+            # We already have everything on a single line
             if "\n" not in wrappedMessage:
                 return wrappedMessage
 
