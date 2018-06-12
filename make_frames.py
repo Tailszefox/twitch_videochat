@@ -4,6 +4,7 @@ import sys
 import json
 import argparse
 import textwrap
+import platform
 from tqdm import tqdm
 from multiprocessing import Pool
 
@@ -138,10 +139,15 @@ def main(videoId, scrolling):
 
     print("\nGenerating {} frames for {} messages{}...".format(len(frameList), len(messages), "" if common.scrolling else " with no scrolling"))
 
-    pool = Pool()
-    list(tqdm(pool.imap(common.writeFrame, frameList), total = len(frameList), unit = "frames"))
-    pool.close()
-    pool.join()
+    # TODO add multithreading support for Windows
+    if platform.system() == "Windows":
+        for f in tqdm(frameList, unit = "frames"):
+            common.writeFrame(f)
+    else:
+        pool = Pool()
+        list(tqdm(pool.imap(common.writeFrame, frameList), total = len(frameList), unit = "frames"))
+        pool.close()
+        pool.join()
 
 if __name__=='__main__':
     print("This script should not be called on its own. Call twitch_videochat.py instead.")
