@@ -3,7 +3,6 @@ import textwrap
 
 # Message sent by viewer
 class ChatMessage():
-
     def __init__(self, obj):
         self.time = int(obj["content_offset_seconds"] * 1000)
         self.nick = obj["commenter"]["display_name"] if obj["commenter"]["display_name"] is not None else obj["commenter"]["name"]
