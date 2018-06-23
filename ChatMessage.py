@@ -1,9 +1,8 @@
-import common
 import textwrap
 
 # Message sent by viewer
 class ChatMessage():
-    def __init__(self, obj):
+    def __init__(self, obj, baseDraw, fonts, chatWidth, videoHeight):
         self.time = int(obj["content_offset_seconds"] * 1000)
         self.nick = obj["commenter"]["display_name"] if obj["commenter"]["display_name"] is not None else obj["commenter"]["name"]
 
@@ -13,14 +12,14 @@ class ChatMessage():
             self.color = self.generateColor()
 
         self.rawMessage = obj["message"]["body"]
-        self.message = self.wrapMessage()
+        self.message = self.wrapMessage(baseDraw, fonts, chatWidth)
 
-        self.dimensions = self.getDimensions()
+        self.dimensions = self.getDimensions(baseDraw, fonts)
 
         self.timeToNext = 0
 
         # All messages start below the bottom of the video
-        self.currentY = common.videoHeight
+        self.currentY = videoHeight
 
     # Adjust nick color so it's not too dark
     def adjustColor(self, color):
@@ -48,7 +47,7 @@ class ChatMessage():
         return color
 
     # Wrap message so it fits on screen
-    def wrapMessage(self):
+    def wrapMessage(self, baseDraw, fonts, chatWidth):
         maximumTextLength = 0
         wrappedMessage = None
         previousWrappedMessage = None
@@ -59,10 +58,10 @@ class ChatMessage():
 
             previousWrappedMessage = wrappedMessage
             wrappedMessage = textwrap.fill(self.rawMessage, width = maximumTextLength)
-            widthMessage, heightMessage = common.baseDraw.textsize(wrappedMessage, common.fonts["verdana"])
+            widthMessage, heightMessage = baseDraw.textsize(wrappedMessage, fonts["verdana"])
 
             # We exceeded the allowed length
-            if widthMessage >= (common.chatWidth - 20):
+            if widthMessage >= (chatWidth - 20):
                 return previousWrappedMessage
 
             # We already have everything on a single line
@@ -70,9 +69,9 @@ class ChatMessage():
                 return wrappedMessage
 
     # Get nick and message heights and widths
-    def getDimensions(self):
-        widthNick, heightNick = common.baseDraw.textsize(self.nick, common.fonts["verdanaBold"])
-        widthMessage, heightMessage = common.baseDraw.textsize(self.message, common.fonts["verdana"])
+    def getDimensions(self, baseDraw, fonts):
+        widthNick, heightNick = baseDraw.textsize(self.nick, fonts["verdanaBold"])
+        widthMessage, heightMessage = baseDraw.textsize(self.message, fonts["verdana"])
 
         dimensions = {"nick": {}, "message": {}}
         dimensions["nick"] = {"width": widthNick, "height": heightNick}
