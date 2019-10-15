@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.7
 
 import argparse
 import sys
@@ -79,15 +79,15 @@ def main():
 
     printBold("\nDownloading chat...")
 
-    chatFilename = "rechat-{}.json".format(videoId)
+    chatFilename = "{}.json".format(videoId)
 
     if os.path.exists("./{}".format(chatFilename)):
         print("Chat already downloaded, skipping...")
     else:
-        subprocess.call(["python", "../../rechat-dl/rechat-dl.py", videoId])
+        subprocess.call(["tcd", "--format", "json", "-v", videoId])
 
     if not os.path.exists("./{}".format(chatFilename)):
-        print("Chat failed to download. Please check rechat-dl output.")
+        print("Chat failed to download. Please check Twitch-Chat-Downloader output.")
         sys.exit(1)
 
     printBold("\nDownloading video...")
@@ -161,10 +161,7 @@ def main():
     print("Parsing chat log from {}...".format(chatFilename))
     with open(chatFilename) as j:
         chat = json.load(j)
-
-        # First element is video info
-        video = chat[0]
-        chat = chat[1:]
+        chat = chat["comments"]
 
     messages = []
     lastMessage = None
@@ -283,7 +280,7 @@ def main():
 
     # Force non-Windows OSes to use the spawn method, to behave the same as Windows
     if platform.system() != "Windows":
-        multiprocessing.set_start_method('spawn')
+        multiprocessing.set_start_method('spawn', force=True)
 
     pool = multiprocessing.Pool()
 

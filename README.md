@@ -17,8 +17,9 @@ This can be useful if you want to watch a stream replay with chat on a device th
 **Prerequisites**
 
 You will need the following in order to run the script:
-- Python 3.X. The script has been tested with Python 3.4 and 3.5.
-- [youtube-dl](https://github.com/rg3/youtube-dl/) and [rechat-dl](https://github.com/KunaiFire/rechat-dl) are provided as submodules. If you've cloned the repository, you may need to issue the command `git submodule update --init --recursive` in order to actually download them.
+- Python 3.7 or later.
+- [Twitch Chat Downloader](https://github.com/PetterKraabol/Twitch-Chat-Downloader). Follow its installation instructions carefully, notably the need to create a Twitch client ID.
+- [youtube-dl](https://github.com/rg3/youtube-dl/), which is provided as a submodule. If you've cloned the repository, you may need to issue the command `git submodule update --init --recursive` in order to actually download it.
 - The following Python modules:
     - Pillow
     - tqdm
@@ -34,12 +35,12 @@ If you're missing something else that's not in this list, you should get an erro
 
 **How it works**
 - [youtube-dl](https://github.com/rg3/youtube-dl/) is used to download the Twitch video.
-- [rechat-dl](https://github.com/KunaiFire/rechat-dl) is used to download the chat data in JSON.
+- [Twitch Chat Downloader](https://github.com/PetterKraabol/Twitch-Chat-Downloader) is used to download the chat data in JSON.
 - The script parses the chat, renders frames for each message, and decides how long each frame should be displayed.
 - ffmpeg is used to create the final video. The original video is resized and some room is added to the right. A new video is rendered using the frames created by the script, each frame being displayed for the amount of time the script has chosen. This video is then overlaid next to the original video, and the final video is rendered.
 
 There's also a few things to keep in mind before you give it a shot:
-- The script has been tested on Debian 8 and on Windows 10. It should work on most other OSes and flavors, but it might not.
+- The script has been tested on Debian 9 and on Windows 10. It should work on most other OSes and flavors, but it might not.
 - The script works with all the videos it's been tested with. If you do find a video that doesn't work, please open a new issue with a link to the video and a description of the problem.
 - Only videos from the "Video" tab on a Twitch channel are compatible.
 - The process can take a while, depending on the amount of messages to process and the length of the video. As stated above, you can make the frame generation phase faster by using `--no-scrolling`, though this won't have an impact on the time necessary to render the final video.
