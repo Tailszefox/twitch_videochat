@@ -23,7 +23,7 @@ You will need the following in order to run the script:
 - The following Python modules:
     - Pillow
     - tqdm
-    - youtube-dl and rechat-dl may require you to install some additional modules
+    - youtube-dl and Twitch Chat Downloader may require you to install some additional modules
 - ffmpeg and ffprobe. On Linux you should be able to install them through your usual package manager. On Windows, grab the latest Windows build from https://www.ffmpeg.org/download.html, and place ffmpeg.exe and ffprobe.exe in the same directory as the script itself.
 
 If you're missing something else that's not in this list, you should get an error message telling you what.
